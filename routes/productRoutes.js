@@ -1,19 +1,27 @@
 const express = require("express");
 const Product = require("../models/productModel");
+const {
+  createProduct,
+  getAllProducts,
+  deleteProduct,
+} = require("../controllers/productController");
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-  const products = await Product.find({});
-  return res.status(200).json(products);
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 5);
+    cb(null, `${uniqueSuffix}-${file.originalname}`);
+  },
 });
 
-router.post("/", async (req, res) => {
-  const { name, price } = req.body;
-  await Product.create({
-    name: name,
-    price: price,
-  });
-  return res.status(201).json("Product created successfully");
-});
+const upload = multer({ storage: storage });
 
+router.post("/", upload.single("image"), createProduct);
+router.get("/", getAllProducts);
+router.delete("/:_id", deleteProduct);
 module.exports = router;

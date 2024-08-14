@@ -7,6 +7,7 @@ const productRoutes = require("./routes/productRoutes");
 const userRoutes = require("./routes/userRoutes");
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // routes
 app.use("/api/v1/products", productRoutes);
