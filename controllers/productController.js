@@ -11,7 +11,10 @@ const createProduct = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const product = await Product.create({ ...req.body, image: req.file.path });
+    const product = await Product.create({
+      ...req.body,
+      image: `/uploads/${req.file.filename}`,
+    });
 
     res.status(201).json(product);
   } catch (error) {

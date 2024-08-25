@@ -8,11 +8,10 @@ const {
 const router = express.Router();
 
 const multer = require("multer");
+const { checkAuthentication, isAdmin } = require("../middleware/auth");
 
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/");
-  },
+  destination: "./uploads/", // Folder where images will be stored
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 5);
     cb(null, `${uniqueSuffix}-${file.originalname}`);
@@ -21,7 +20,13 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-router.post("/", upload.single("image"), createProduct);
+router.post(
+  "/",
+  checkAuthentication,
+  isAdmin,
+  upload.single("image"),
+  createProduct
+);
 router.get("/", getAllProducts);
 router.delete("/:_id", deleteProduct);
 module.exports = router;

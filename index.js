@@ -1,13 +1,17 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
 const app = express();
 const PORT = 8001;
 
 const productRoutes = require("./routes/productRoutes");
 const userRoutes = require("./routes/userRoutes");
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// Serve static files from the 'uploads' directory
+app.use("/uploads", express.static("uploads"));
 
 // routes
 app.use("/api/v1/products", productRoutes);
