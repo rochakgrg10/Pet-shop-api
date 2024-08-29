@@ -1,4 +1,6 @@
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
+
 const { ADMIN } = require("../constant/role");
 
 function checkAuthentication(req, res, next) {
@@ -7,7 +9,7 @@ function checkAuthentication(req, res, next) {
   // console.log(req.headers.authorization)
   if (token) {
     try {
-      const decodedUser = jwt.verify(token, "shhhhh");
+      const decodedUser = jwt.verify(token, process.env.JWT_SECRET);
 
       req.user = decodedUser;
       return next();

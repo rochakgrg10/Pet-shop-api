@@ -1,4 +1,5 @@
 const express = require("express");
+require("dotenv").config();
 const mongoose = require("mongoose");
 const cors = require("cors");
 const app = express();
@@ -23,9 +24,7 @@ app.get("/", (req, res) => {
 
 app.listen(PORT, () => {
   mongoose
-    .connect(
-      "mongodb+srv://rochakgrg:DqmOf4GjvyidX4Jh@pet-shop.1nrzr.mongodb.net/petShopDB?retryWrites=true&w=majority&appName=Pet-shop"
-    )
+    .connect(process.env.MONGO_URL)
     .then(() => console.log("Mongodb connected successfully"))
     .catch((err) => console.log("Mongodb error ", err));
   console.log(`app is listening on port ${PORT}`);

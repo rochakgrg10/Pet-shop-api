@@ -24,15 +24,45 @@ const createProduct = async (req, res) => {
 };
 
 const getAllProducts = async (req, res) => {
-  const products = await Product.find({});
+  const category = req.query.category;
+  const minRating = parseFloat(req.query.minRating);
+  // Build the query object based on provided parameters
+  let query = {};
+
+  if (category) {
+    query.category = { $in: [category] };
+  }
+
+  if (!isNaN(minRating)) {
+    query.rating = { $gte: minRating };
+  }
+
+  let products = await Product.find(query);
   return res.status(200).json(products);
+};
+
+const updateProduct = async (req, res) => {
+  try {
+    let product = await Product.findById(req.params._id);
+    if (!product) {
+      return res.status(404).json("Not found");
+    }
+
+    await Product.findOneAndUpdate({ _id: req.params._id }, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    res.status(200).json({ product, msg: `${req.params._id} product updated` });
+  } catch (error) {
+    res.status(500).json(error);
+  }
 };
 
 const deleteProduct = async (req, res) => {
   try {
     let product = await Product.findById(req.params._id);
     if (!product) {
-      res.status(404).json("Not found");
+      return res.status(404).json("Not found");
     }
 
     // Delete the image file from the upload folder
@@ -48,4 +78,9 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-module.exports = { createProduct, getAllProducts, deleteProduct };
+module.exports = {
+  createProduct,
+  getAllProducts,
+  deleteProduct,
+  updateProduct,
+};

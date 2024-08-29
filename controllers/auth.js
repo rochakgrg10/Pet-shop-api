@@ -1,4 +1,5 @@
 const User = require("../models/userModel");
+require("dotenv").config();
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
 const jwt = require("jsonwebtoken");
@@ -44,7 +45,7 @@ const signup = async (req, res, next) => {
     /* spread operator */
     let hashed = await bcrypt.hash(req.body.password, 10);
     let user = await User.create({ ...req.body, password: hashed });
-    res.status(200).json(user);
+    res.status(201).json(user);
   } catch (error) {
     next(error);
   }
@@ -67,9 +68,9 @@ const login = async (req, res, next) => {
   if (matched) {
     user = user.toObject();
     user.password = undefined;
-    let token = jwt.sign(user, "shhhhh", { expiresIn: "7d" });
+    let token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-    return res.status(201).send({ token });
+    return res.status(200).send({ ...user, token });
   }
 
   return res.status(401).send({
@@ -86,8 +87,25 @@ const fetchUsers = async (req, res) => {
   }
 };
 
+const getUser = async (req, res) => {
+  let token = req.headers.authorization?.replaceAll("Bearer ", "");
+
+  // console.log(req.headers.authorization)
+  if (token) {
+    try {
+      const decodedUser = jwt.verify(token, process.env.JWT_SECRET);
+
+      let user = decodedUser;
+      res.status(200).json(user);
+    } catch (error) {
+      res.status(401).send(error);
+    }
+  }
+};
+
 module.exports = {
   signup,
   login,
   fetchUsers,
+  getUser,
 };
