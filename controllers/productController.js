@@ -24,21 +24,38 @@ const createProduct = async (req, res) => {
 };
 
 const getAllProducts = async (req, res) => {
-  const category = req.query.category;
-  const minRating = parseFloat(req.query.minRating);
-  // Build the query object based on provided parameters
-  let query = {};
+  try {
+    const category = req.query.category;
+    const minRating = parseFloat(req.query.minRating);
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 4;
+    const skip = (page - 1) * limit;
+    // Build the query object based on provided parameters
+    let query = {};
 
-  if (category) {
-    query.category = { $in: [category] };
+    if (category) {
+      query.category = { $in: [category] };
+    }
+
+    if (!isNaN(minRating)) {
+      query.rating = { $gte: minRating };
+    }
+
+    let products = await Product.find(query).skip(skip).limit(limit);
+    const totalProducts = await Product.countDocuments({
+      category: { $in: [category] },
+    });
+
+    return res.status(200).json({
+      success: true,
+      count: products.length,
+      totalProducts,
+      totalPages: Math.ceil(totalProducts / limit),
+      products,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
-
-  if (!isNaN(minRating)) {
-    query.rating = { $gte: minRating };
-  }
-
-  let products = await Product.find(query);
-  return res.status(200).json(products);
 };
 
 const updateProduct = async (req, res) => {
