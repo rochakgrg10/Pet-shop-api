@@ -7,6 +7,7 @@ const PORT = 8001;
 
 const productRoutes = require("./routes/productRoutes");
 const userRoutes = require("./routes/userRoutes");
+const blogRoutes = require("./routes/blogRoutes");
 
 app.use(cors());
 app.use(express.json());
@@ -17,6 +18,7 @@ app.use("/uploads", express.static("uploads"));
 // routes
 app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/blogs", blogRoutes);
 
 app.get("/", (req, res) => {
   return res.send("Hello world");
